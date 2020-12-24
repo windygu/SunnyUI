@@ -1,14 +1,35 @@
-﻿using System;
+﻿/******************************************************************************
+ * SunnyUI 开源控件库、工具类库、扩展类库、多页面开发框架。
+ * CopyRight (C) 2012-2020 ShenYongHua(沈永华).
+ * QQ群：56829229 QQ：17612584 EMail：SunnyUI@qq.com
+ *
+ * Blog:   https://www.cnblogs.com/yhuse
+ * Gitee:  https://gitee.com/yhuse/SunnyUI
+ * GitHub: https://github.com/yhuse/SunnyUI
+ *
+ * SunnyUI.dll can be used for free under the GPL-3.0 license.
+ * If you use this code, please keep this note.
+ * 如果您使用此代码，请保留此说明。
+ ******************************************************************************
+ * 文件名称: UIPieChartOption.cs
+ * 文件说明: 饼状图配置类
+ * 当前版本: V2.2
+ * 创建日期: 2020-06-06
+ *
+ * 2020-06-06: V2.2.5 增加文件说明
+******************************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
 namespace Sunny.UI
 {
-    public class UIPieOption : UIOption, IDisposable
+    public sealed class UIPieOption : UIOption, IDisposable
     {
         public List<UIPieSeries> Series = new List<UIPieSeries>();
 
-        public UIPieToolTip ToolTip;
+        public UIPieToolTip ToolTip { get; set; } = new UIPieToolTip();
 
         public void AddSeries(UIPieSeries series)
         {
@@ -33,7 +54,7 @@ namespace Sunny.UI
     {
         public List<UIDoughnutSeries> Series = new List<UIDoughnutSeries>();
 
-        public UIPieToolTip ToolTip;
+        public UIPieToolTip ToolTip { get; set; } = new UIPieToolTip();
 
         public void AddSeries(UIDoughnutSeries series)
         {
@@ -54,11 +75,14 @@ namespace Sunny.UI
         public int SeriesCount => Series.Count;
     }
 
-    public class UIPieToolTip
+    public class UIPieToolTip : UIChartToolTip
     {
-        public string Formatter { get; set; } = "{{a}}" + '\n' + "{{b}} : {{c}} ({{d}}%)";
-
-        public string ValueFormat { get; set; } = "F0";
+        public UIPieToolTip()
+        {
+            Formatter = "{{a}}" + '\n' + "{{b}} : {{c}} ({{d}}%)";
+            ValueFormat = "F0";
+            Visible = true;
+        }
     }
 
     public class UIPieSeries : IDisposable

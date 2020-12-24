@@ -17,6 +17,7 @@
  * 创建日期: 2020-01-01
  *
  * 2020-01-01: V2.2.0 增加文件说明
+ * 2020-08-28: V2.2.7 增加节点的Image绘制
 ******************************************************************************/
 
 using System;
@@ -40,11 +41,10 @@ namespace Sunny.UI
 
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.DoubleBuffer, true);
-            SetStyle(ControlStyles.ResizeRedraw, true);
-            SetStyle(ControlStyles.Selectable, true);
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            SetStyle(ControlStyles.ResizeRedraw, true);
             DoubleBuffered = true;
             UpdateStyles();
             Font = UIFontColor.Font;
@@ -54,6 +54,18 @@ namespace Sunny.UI
             Width = 500;
             Height = 110;
             Version = UIGlobal.Version;
+        }
+
+        public void ClearAll()
+        {
+            Nodes.Clear();
+            MenuHelper.Clear();
+        }
+
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            if (NavBarMenu != null) NavBarMenu.Font = Font;
         }
 
         [DefaultValue(null)]
@@ -157,8 +169,26 @@ namespace Sunny.UI
             foreColor = uiColor.UnSelectedForeColor;
             backColor = uiColor.BackColor;
             menuHoverColor = uiColor.HoverColor;
+            menuSelectedColor = uiColor.SelectedColor;
             Invalidate();
         }
+
+        private Color menuSelectedColor = Color.FromArgb(36, 36, 36);
+
+        [DefaultValue(typeof(Color), "36, 36, 36")]
+        [Description("菜单栏选中背景颜色"), Category("SunnyUI")]
+        public Color MenuSelectedColor
+        {
+            get => menuSelectedColor;
+            set
+            {
+                menuSelectedColor = value;
+                _menuStyle = UIMenuStyle.Custom;
+            }
+        }
+
+        [Description("选中使用菜单栏选中背景颜色MenuSelectedColor，不选用则使用背景色BackColor"), Category("SunnyUI"), DefaultValue(false)]
+        public bool MenuSelectedColorUsed { get; set; }
 
         private Color menuHoverColor = Color.FromArgb(76, 76, 76);
 
@@ -323,8 +353,14 @@ namespace Sunny.UI
                 Rectangle rect = new Rectangle(NodeX + i * NodeSize.Width, NodeY, NodeSize.Width, NodeSize.Height);
 
                 TreeNode node = Nodes[i];
+
+                int symbolSize = 0;
+                if (ImageList != null && ImageList.Images.Count > 0 && node.ImageIndex >= 0 && node.ImageIndex >= 0 && node.ImageIndex < ImageList.Images.Count)
+                    symbolSize = ImageList.ImageSize.Width;
+
                 int symbol = MenuHelper.GetSymbol(node);
-                int symbolSize = MenuHelper.GetSymbolSize(node);
+                if (symbol > 0)
+                    symbolSize = MenuHelper.GetSymbolSize(node);
 
                 SizeF sf = e.Graphics.MeasureString(node.Text, Font);
                 Color textColor = ForeColor;
@@ -337,6 +373,11 @@ namespace Sunny.UI
 
                 if (i == SelectedIndex)
                 {
+                    if (MenuSelectedColorUsed)
+                    {
+                        e.Graphics.FillRectangle(MenuSelectedColor, rect.X, Height - NodeSize.Height, rect.Width, NodeSize.Height);
+                    }
+
                     if (!NavBarMenu.Visible)
                     {
                         e.Graphics.FillRectangle(SelectedHighColor, rect.X, Height - 4, rect.Width, 4);
@@ -345,9 +386,19 @@ namespace Sunny.UI
                     textColor = SelectedForeColor;
                 }
 
-                if (symbol > 0)
+                if (symbolSize > 0)
                 {
-                    e.Graphics.DrawFontImage(symbol, symbolSize, textColor, new RectangleF(NodeX + i * NodeSize.Width + (NodeSize.Width - sf.Width - symbolSize) / 2.0f, NodeY, symbolSize, NodeSize.Height));
+                    if (symbol > 0)
+                    {
+                        e.Graphics.DrawFontImage(symbol, symbolSize, textColor, new RectangleF(NodeX + i * NodeSize.Width + (NodeSize.Width - sf.Width - symbolSize) / 2.0f, NodeY, symbolSize, NodeSize.Height));
+
+                    }
+                    else
+                    {
+                        if (ImageList != null)
+                            e.Graphics.DrawImage((Bitmap)ImageList.Images[node.ImageIndex], NodeX + i * NodeSize.Width + (NodeSize.Width - sf.Width - symbolSize) / 2.0f, NodeY + (NodeSize.Height - ImageList.ImageSize.Height) / 2);
+                    }
+
                     e.Graphics.DrawString(node.Text, Font, textColor, NodeX + i * NodeSize.Width + (NodeSize.Width - sf.Width + symbolSize) / 2.0f, NodeY + (NodeSize.Height - sf.Height) / 2);
                 }
                 else

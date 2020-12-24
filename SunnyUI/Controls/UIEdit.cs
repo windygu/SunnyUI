@@ -21,7 +21,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace Sunny.UI
@@ -57,12 +56,9 @@ namespace Sunny.UI
             set
             {
                 watermark = value;
-                SendMessage(Handle, 0x1501, (int)IntPtr.Zero, value);
+                Win32.User.SendMessage(Handle, 0x1501, (int)IntPtr.Zero, value);
             }
         }
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, string lParam);
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -478,9 +474,20 @@ namespace Sunny.UI
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            SelectionStart = Text.Length;
-            SelectionLength = 0;
+
+            if (FocusedSelectAll)
+            {
+                SelectAll();
+            }
+            else
+            {
+                SelectionStart = Text.Length;
+                SelectionLength = 0;
+            }
         }
+
+        [DefaultValue(false)]
+        public bool FocusedSelectAll { get; set; }
 
         protected override void OnLeave(EventArgs e)
         {

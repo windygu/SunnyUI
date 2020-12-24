@@ -35,7 +35,6 @@
             this.uiImageButton2 = new Sunny.UI.UIImageButton();
             this.uiImageButton3 = new Sunny.UI.UIImageButton();
             this.uiSymbolButton1 = new Sunny.UI.UISymbolButton();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.PagePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.uiImageButton1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.uiImageButton2)).BeginInit();
@@ -71,7 +70,6 @@
             this.PieChart.LegendFont = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.PieChart.Location = new System.Drawing.Point(30, 48);
             this.PieChart.Name = "PieChart";
-            this.PieChart.Option = null;
             this.PieChart.RectSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.None;
             this.PieChart.Size = new System.Drawing.Size(670, 400);
             this.PieChart.SubFont = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -156,6 +154,5 @@
         private UIImageButton uiImageButton3;
         private UIImageButton uiImageButton2;
         private UISymbolButton uiSymbolButton1;
-        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

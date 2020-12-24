@@ -20,7 +20,9 @@
 ******************************************************************************/
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace Sunny.UI
 {
@@ -31,6 +33,7 @@ namespace Sunny.UI
             InitializeComponent();
             MainContainer.TabVisible = false;
             MainContainer.BringToFront();
+            MainContainer.TabPages.Clear();
         }
 
         protected override void OnShown(EventArgs e)
@@ -41,6 +44,7 @@ namespace Sunny.UI
 
         public UIPage AddPage(UIPage page, int index)
         {
+            page.Frame = this;
             page.PageIndex = index;
             MainContainer.AddPage(page);
             return page;
@@ -48,6 +52,7 @@ namespace Sunny.UI
 
         public UIPage AddPage(UIPage page, Guid guid)
         {
+            page.Frame = this;
             page.PageGuid = guid;
             MainContainer.AddPage(page);
             return page;
@@ -55,11 +60,12 @@ namespace Sunny.UI
 
         public UIPage AddPage(UIPage page)
         {
+            page.Frame = this;
             MainContainer.AddPage(page);
             return page;
         }
 
-        public void SelectPage(int pageIndex)
+        public virtual void SelectPage(int pageIndex)
         {
             MainContainer.SelectPage(pageIndex);
         }
@@ -83,5 +89,19 @@ namespace Sunny.UI
             get => MainContainer.ShowActiveCloseButton;
             set => MainContainer.ShowActiveCloseButton = value;
         }
+
+        private void MainContainer_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            if (Selecting != null)
+            {
+                List<UIPage> pages = e.TabPage.GetControls<UIPage>();
+                Selecting?.Invoke(this, e, pages.Count == 0 ? null : pages[0]);
+            }
+        }
+
+        public delegate void OnSelecting(object sender, TabControlCancelEventArgs e, UIPage page);
+
+        [Description("页面选择事件"), Category("SunnyUI")]
+        public event OnSelecting Selecting;
     }
 }

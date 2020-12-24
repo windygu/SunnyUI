@@ -1,4 +1,25 @@
-﻿using System;
+﻿/******************************************************************************
+ * SunnyUI 开源控件库、工具类库、扩展类库、多页面开发框架。
+ * CopyRight (C) 2012-2020 ShenYongHua(沈永华).
+ * QQ群：56829229 QQ：17612584 EMail：SunnyUI@qq.com
+ *
+ * Blog:   https://www.cnblogs.com/yhuse
+ * Gitee:  https://gitee.com/yhuse/SunnyUI
+ * GitHub: https://github.com/yhuse/SunnyUI
+ *
+ * SunnyUI.dll can be used for free under the GPL-3.0 license.
+ * If you use this code, please keep this note.
+ * 如果您使用此代码，请保留此说明。
+ ******************************************************************************
+ * 文件名称: UIDoughnutChart.cs
+ * 文件说明: 甜甜圈图
+ * 当前版本: V2.2
+ * 创建日期: 2020-06-06
+ *
+ * 2020-06-06: V2.2.5 增加文件说明
+******************************************************************************/
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +29,7 @@ using System.Windows.Forms;
 namespace Sunny.UI
 {
     [ToolboxItem(true), Description("甜甜圈图")]
-    public class UIDoughnutChart : UIChart
+    public sealed class UIDoughnutChart : UIChart
     {
         protected override void CreateEmptyOption()
         {
@@ -37,26 +58,25 @@ namespace Sunny.UI
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            CalcData(DoughnutOption);
+            CalcData();
         }
 
         protected override void DrawOption(Graphics g)
         {
-            if (DoughnutOption == null) return;
-            DrawTitle(g, DoughnutOption.Title);
-            DrawSeries(g, DoughnutOption.Series);
-            DrawLegend(g, DoughnutOption.Legend);
+            if (Option == null) return;
+            DrawTitle(g, Option.Title);
+            DrawSeries(g, Option.Series);
+            DrawLegend(g, Option.Legend);
         }
 
-        protected override void CalcData(UIOption option)
+        protected override void CalcData()
         {
             Angles.Clear();
-            UIDoughnutOption o = (UIDoughnutOption)option;
-            if (o == null || o.Series == null || o.Series.Count == 0) return;
+            if (Option == null || Option.Series == null || Option.Series.Count == 0) return;
 
-            for (int pieIndex = 0; pieIndex < o.Series.Count; pieIndex++)
+            for (int pieIndex = 0; pieIndex < Option.Series.Count; pieIndex++)
             {
-                var pie = o.Series[pieIndex];
+                var pie = Option.Series[pieIndex];
                 Angles.TryAdd(pieIndex, new ConcurrentDictionary<int, Angle>());
 
                 double all = 0;
@@ -72,14 +92,14 @@ namespace Sunny.UI
                     float angle = (float)(pie.Data[i].Value * 360.0f / all);
                     float percent = (float)(pie.Data[i].Value * 100.0f / all);
                     string text = "";
-                    if (o.ToolTip != null)
+                    if (Option.ToolTip != null)
                     {
                         try
                         {
-                            UITemplate template = new UITemplate(o.ToolTip.Formatter);
+                            UITemplate template = new UITemplate(Option.ToolTip.Formatter);
                             template.Set("a", pie.Name);
                             template.Set("b", pie.Data[i].Name);
-                            template.Set("c", pie.Data[i].Value.ToString(o.ToolTip.ValueFormat));
+                            template.Set("c", pie.Data[i].Value.ToString(Option.ToolTip.ValueFormat));
                             template.Set("d", percent.ToString("F2"));
                             text = template.Render();
                         }
@@ -92,7 +112,7 @@ namespace Sunny.UI
 
                     Angle pieAngle = new Angle(start, angle, text);
                     GetSeriesRect(pie, ref pieAngle);
-                    Angles[pieIndex].AddOrUpdate(i, pieAngle);
+                    Angles[pieIndex].TryAddOrUpdate(i, pieAngle);
                     start += angle;
                 }
             }
@@ -134,30 +154,35 @@ namespace Sunny.UI
 
         private readonly ConcurrentDictionary<int, ConcurrentDictionary<int, Angle>> Angles = new ConcurrentDictionary<int, ConcurrentDictionary<int, Angle>>();
 
-        [Browsable(false)]
-        private UIDoughnutOption DoughnutOption
+        [Browsable(false), DefaultValue(null)]
+        public UIDoughnutOption Option
         {
             get
             {
-                UIOption option = Option ?? EmptyOption;
+                UIOption option = BaseOption ?? EmptyOption;
                 UIDoughnutOption o = (UIDoughnutOption)option;
                 return o;
             }
+
+            // set
+            // {
+            //     SetOption(value);
+            // }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
-            if (DoughnutOption.SeriesCount == 0)
+            if (Option.SeriesCount == 0)
             {
                 SetPieAndAzIndex(-1, -1);
                 return;
             }
 
-            for (int pieIndex = 0; pieIndex < DoughnutOption.SeriesCount; pieIndex++)
+            for (int pieIndex = 0; pieIndex < Option.SeriesCount; pieIndex++)
             {
-                for (int azIndex = 0; azIndex < DoughnutOption.Series[pieIndex].Data.Count; azIndex++)
+                for (int azIndex = 0; azIndex < Option.Series[pieIndex].Data.Count; azIndex++)
                 {
                     Angle angle = Angles[pieIndex][azIndex];
                     PointF pf = angle.Center;
@@ -194,7 +219,11 @@ namespace Sunny.UI
                             tip.Top = e.Location.Y + 20;
                         }
 
-                        if (!tip.Visible) tip.Visible = angle.Text.IsValid();
+                        if (Option.ToolTip.Visible)
+                        {
+                            if (!tip.Visible) tip.Visible = angle.Text.IsValid();
+                        }
+
                         return;
                     }
                 }

@@ -19,6 +19,8 @@
  * 2020-01-01: V2.2.0 增加文件说明
  * 2020-04-25: V2.2.4 更新主题配置类
  * 2020-07-26: V2.2.6 增加Selected及选中颜色配置
+ * 2020-08-22: V2.2.7 空格键按下press背景效果，添加双击事件，解决因快速点击导致过慢问题
+ * 2020-09-14: V2.2.7 Tips颜色可设置
 ******************************************************************************/
 
 using System;
@@ -146,6 +148,19 @@ namespace Sunny.UI
             }
         }
 
+        private Color tipsColor = Color.Red;
+
+        [DefaultValue(typeof(Color), "Red")]
+        public Color TipsColor
+        {
+            get => tipsColor;
+            set
+            {
+                tipsColor = value;
+                Invalidate();
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -157,7 +172,7 @@ namespace Sunny.UI
                 float sfMax = Math.Max(sf.Width, sf.Height);
                 float x = Width - 1 - 2 - sfMax;
                 float y = 1 + 1;
-                e.Graphics.FillEllipse(UIColor.Red, x, y, sfMax, sfMax);
+                e.Graphics.FillEllipse(TipsColor, x, y, sfMax, sfMax);
                 e.Graphics.DrawString(TipsText, TipsFont, Color.White, x + sfMax / 2.0f - sf.Width / 2.0f, y + sfMax / 2.0f - sf.Height / 2.0f);
             }
 

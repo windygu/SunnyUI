@@ -44,9 +44,9 @@ namespace Sunny.UI
         public UIPanel()
         {
             InitializeComponent();
+
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.DoubleBuffer, true);
-            SetStyle(ControlStyles.ResizeRedraw, true);
             SetStyle(ControlStyles.Selectable, true);
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             SetStyle(ControlStyles.UserPaint, true);
@@ -55,7 +55,15 @@ namespace Sunny.UI
             UpdateStyles();
 
             Version = UIGlobal.Version;
+            AutoScaleMode = AutoScaleMode.None;
             base.Font = UIFontColor.Font;
+            base.MinimumSize = new System.Drawing.Size(1, 1);
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            Invalidate();
         }
 
         /// <summary>
@@ -218,11 +226,12 @@ namespace Sunny.UI
                 if (rectColor != value)
                 {
                     rectColor = value;
-                    AfterSetRectColor(value);
                     RectColorChanged?.Invoke(this, null);
                     _style = UIStyle.Custom;
                     Invalidate();
                 }
+
+                AfterSetRectColor(value);
             }
         }
 
@@ -242,11 +251,12 @@ namespace Sunny.UI
                 if (fillColor != value)
                 {
                     fillColor = value;
-                    AfterSetFillColor(value);
                     FillColorChanged?.Invoke(this, null);
                     _style = UIStyle.Custom;
                     Invalidate();
                 }
+
+                AfterSetFillColor(value);
             }
         }
 
@@ -441,13 +451,13 @@ namespace Sunny.UI
                 g.FillPath(color, path);
         }
 
-        protected override void WndProc(ref Message m)
-        {
-            if (m.Msg != 20)
-            {
-                base.WndProc(ref m);
-            }
-        }
+        // protected override void WndProc(ref Message m)
+        // {
+        //     if (m.Msg != 20)
+        //     {
+        //         base.WndProc(ref m);
+        //     }
+        // }
 
         protected virtual void AfterSetFillColor(Color color)
         {

@@ -39,13 +39,25 @@ namespace Sunny.UI
         /// </summary>
         public UIControl()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.SupportsTransparentBackColor | ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.DoubleBuffer, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.DoubleBuffer, true);
+            SetStyle(ControlStyles.Selectable, true);
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            SetStyle(ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             base.DoubleBuffered = true;
             UpdateStyles();
 
             Version = UIGlobal.Version;
             base.Font = UIFontColor.Font;
             Size = new Size(100, 35);
+            base.MinimumSize = new Size(1, 1);
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            Invalidate();
         }
 
         /// <summary>
@@ -266,7 +278,7 @@ namespace Sunny.UI
             }
         }
 
-        private bool useDoubleClick = false;
+        private bool useDoubleClick;
 
         [Description("是否启用双击事件"), Category("SunnyUI")]
         [DefaultValue(false)]
@@ -281,7 +293,7 @@ namespace Sunny.UI
                 if (useDoubleClick != value)
                 {
                     useDoubleClick = value;
-                    //SetStyle(ControlStyles.StandardDoubleClick, useDoubleClick);
+                    SetStyle(ControlStyles.StandardDoubleClick, useDoubleClick);
                     //Invalidate();
                 }
             }

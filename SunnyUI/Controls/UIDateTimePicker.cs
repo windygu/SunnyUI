@@ -18,6 +18,8 @@
  *
  * 2020-01-01: V2.2.0 增加文件说明
  * 2020-07-06: V2.2.6 重写下拉窗体，缩短创建时间
+ * 2020-08-07: V2.2.7 可编辑输入，日期范围控制以防止出错
+ * 2020-09-16: V2.2.7 更改滚轮选择时间的方向
 ******************************************************************************/
 
 using System;
@@ -46,11 +48,16 @@ namespace Sunny.UI
 
         }
 
+        [DefaultValue(false)]
+        [Description("日期输入时，是否可空显示"), Category("SunnyUI")]
+        public bool CanEmpty { get; set; }
+
         public UIDatetimePicker()
         {
             InitializeComponent();
-            Width = 200;
             Value = DateTime.Now;
+            Text = Value.ToString(DateFormat);
+            Width = 200;
             EditorLostFocus += UIDatePicker_LostFocus;
             TextChanged += UIDatePicker_TextChanged;
             MaxLength = 19;
@@ -74,6 +81,11 @@ namespace Sunny.UI
 
         private void UIDatePicker_LostFocus(object sender, EventArgs e)
         {
+            if (Text.IsNullOrEmpty())
+            {
+                if (CanEmpty) return;
+            }
+
             try
             {
                 DateTime dt = Text.ToDateTime(DateFormat);
@@ -111,8 +123,8 @@ namespace Sunny.UI
             get => item.Date;
             set
             {
-                if (value < new DateTime(1753, 1, 1))
-                    value = new DateTime(1753, 1, 1);
+                if (value < DateTimeEx.Jan1st1970)
+                    value = DateTimeEx.Jan1st1970;
                 Text = value.ToString(dateFormat);
                 item.Date = value;
             }

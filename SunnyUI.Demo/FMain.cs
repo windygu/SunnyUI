@@ -11,7 +11,6 @@ namespace Sunny.UI.Demo
         public FMain()
         {
             InitializeComponent();
-
             int pageIndex = 1000;
             Header.SetNodePageIndex(Header.Nodes[0], pageIndex);
             Header.SetNodeSymbol(Header.Nodes[0], 61451);
@@ -30,6 +29,7 @@ namespace Sunny.UI.Demo
             Aside.CreateChildNode(parent, 61716, 24, AddPage(new FTabControl(), ++pageIndex));
             Aside.CreateChildNode(parent, 61544, 24, AddPage(new FLine(), ++pageIndex));
             Aside.CreateChildNode(parent, 61590, 24, AddPage(new FPanel(), ++pageIndex));
+            Aside.CreateChildNode(parent, AddPage(new FFlowLayoutPanel(), ++pageIndex));
             Aside.CreateChildNode(parent, 61516, 24, AddPage(new FTransfer(), ++pageIndex));
             Aside.CreateChildNode(parent, 61447, 24, AddPage(new FAvatar(), ++pageIndex));
             Aside.CreateChildNode(parent, 62104, 24, AddPage(new FContextMenuStrip(), ++pageIndex));
@@ -53,8 +53,10 @@ namespace Sunny.UI.Demo
             parent = Aside.CreateNode("Charts", 61950, 24, pageIndex);
             //直接关联（默认自动生成GUID）
             Aside.CreateChildNode(parent, AddPage(new FPieChart()));
-            Aside.CreateChildNode(parent, AddPage(new FBarChart()));
             Aside.CreateChildNode(parent, AddPage(new FDoughnutChart()));
+            Aside.CreateChildNode(parent, AddPage(new FBarChart()));
+            Aside.CreateChildNode(parent, AddPage(new FBarChartEx()));
+            Aside.CreateChildNode(parent, AddPage(new FLineChart()));
 
             Header.SetNodeSymbol(Header.Nodes[3], 61502);
             var styles = UIStyles.PopularStyles();
@@ -83,9 +85,9 @@ namespace Sunny.UI.Demo
             }
         }
 
-        private void FMain_WindowStateChange(object sender, FormWindowState state)
+        private void FMain_Selecting(object sender, TabControlCancelEventArgs e, UIPage page)
         {
-            state.ConsoleWriteLine("WindowState");
+            page?.Text.ConsoleWriteLine();
         }
     }
 }

@@ -20,6 +20,8 @@
  * 2020-04-25: V2.2.4 功能增强、美化
  * 2020-07-15: V2.2.6 更改默认配置为原生
  * 2020-07-18: V2.2.6 重绘水平滚动条
+ * 2020-08-22: V2.2.7 更新了水平和垂直滚动条的显示，优化滚动效果。
+ * 2020-08-28: V2.2.7 调整水平滚动条
 ******************************************************************************/
 
 using System;
@@ -80,6 +82,18 @@ namespace Sunny.UI
 
             VerticalScrollBar.ValueChanged += VerticalScrollBar_ValueChanged;
             HorizontalScrollBar.ValueChanged += HorizontalScrollBar_ValueChanged;
+            VerticalScrollBar.VisibleChanged += VerticalScrollBar_VisibleChanged;
+            HorizontalScrollBar.VisibleChanged += HorizontalScrollBar_VisibleChanged;
+        }
+
+        private void HorizontalScrollBar_VisibleChanged(object sender, EventArgs e)
+        {
+            SetScrollInfo();
+        }
+
+        private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
+        {
+            SetScrollInfo();
         }
 
         public void Init()
@@ -159,8 +173,8 @@ namespace Sunny.UI
             {
                 HBar.Maximum = HorizontalScrollBar.Maximum;
                 HBar.Value = HorizontalScrollBar.Value;
-                HBar.BoundsWidth = HorizontalScrollBar.Bounds.Width;
-                HBar.LargeChange = HorizontalScrollBar.Maximum / VisibleColumnCount();
+                HBar.BoundsWidth = HorizontalScrollBar.LargeChange;
+                HBar.LargeChange = HorizontalScrollBar.LargeChange;//.Maximum / VisibleColumnCount();
                 HBar.Visible = true;
             }
             else
@@ -169,17 +183,6 @@ namespace Sunny.UI
             }
 
             SetBarPosition();
-        }
-
-        private int VisibleColumnCount()
-        {
-            int cnt = 0;
-            foreach (DataGridViewColumn column in Columns)
-            {
-                if (column.Visible) cnt++;
-            }
-
-            return cnt;
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -229,6 +232,18 @@ namespace Sunny.UI
             SetBarPosition();
         }
 
+        protected override void OnColumnStateChanged(DataGridViewColumnStateChangedEventArgs e)
+        {
+            base.OnColumnStateChanged(e);
+            SetScrollInfo();
+        }
+
+        protected override void OnColumnRemoved(DataGridViewColumnEventArgs e)
+        {
+            base.OnColumnRemoved(e);
+            SetScrollInfo();
+        }
+
         private void SetBarPosition()
         {
             if (ShowRect)
@@ -270,6 +285,8 @@ namespace Sunny.UI
             {
                 ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             }
+
+            SetScrollInfo();
         }
 
         private UIStyle _style = UIStyle.Blue;
@@ -530,10 +547,10 @@ namespace Sunny.UI
             ClearColumns();
         }
 
-        // public void AddRow(params object[] values)
-        // {
-        //     Rows.Add(values);
-        // }
+        public int AddRow(params object[] values)
+        {
+            return Rows.Add(values);
+        }
     }
 
     public static class UIDataGridViewHelper

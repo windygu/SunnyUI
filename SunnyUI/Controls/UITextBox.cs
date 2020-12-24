@@ -18,6 +18,7 @@
  *
  * 2020-01-01: V2.2.0 增加文件说明
  * 2020-06-03: V2.2.5 增加多行，增加滚动条
+ * 2020-09-03: V2.2.7 增加FocusedSelectAll属性，激活时全选。
 ******************************************************************************/
 
 using System;
@@ -83,6 +84,19 @@ namespace Sunny.UI
             Leave?.Invoke(sender, e);
         }
 
+        public override bool Focused
+        {
+            get => edit.Focused;
+        }
+
+        [DefaultValue(false)]
+        [Description("激活时选中全部文字"), Category("SunnyUI")]
+        public bool FocusedSelectAll
+        {
+            get => edit.FocusedSelectAll;
+            set => edit.FocusedSelectAll = value;
+        }
+
         private void UITextBox_TextAlignmentChange(object sender, ContentAlignment alignment)
         {
             if (edit == null) return;
@@ -129,6 +143,10 @@ namespace Sunny.UI
         private void Edit_MouseEnter(object sender, EventArgs e)
         {
             Cursor = editCursor;
+            if (FocusedSelectAll)
+            {
+                SelectAll();
+            }
         }
 
         private void OnMouseWheel(object sender, MouseEventArgs e)
@@ -191,6 +209,7 @@ namespace Sunny.UI
 
         public void Select(int start, int length)
         {
+            edit.Focus();
             edit.Select(start, length);
         }
 
@@ -231,6 +250,7 @@ namespace Sunny.UI
 
         public void SelectAll()
         {
+            edit.Focus();
             edit.SelectAll();
         }
 
@@ -315,11 +335,6 @@ namespace Sunny.UI
             }
             else
             {
-                if (Height < 69)
-                {
-                    Height = 69;
-                }
-
                 edit.Top = 3;
                 edit.Height = Height - 6;
                 edit.Left = 1;

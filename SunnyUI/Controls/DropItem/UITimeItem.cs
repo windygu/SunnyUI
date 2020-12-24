@@ -414,26 +414,13 @@ namespace Sunny.UI
         {
             InitializeComponent();
             this.MouseWheel += UITimeItem_MouseWheel;
+            btnOK.Text = UILocalize.OK;
+            btnCancel.Text = UILocalize.Cancel;
         }
 
         private void UITimeItem_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (e.Delta < 0)
-            {
-                if (new Rectangle(ht.Left, ht.Top, ht.Width, hb.Bottom - ht.Top).Contains(e.X, e.Y))
-                {
-                    h1.PerformClick();
-                }
-                else if (new Rectangle(mt.Left, mt.Top, ht.Width, hb.Bottom - ht.Top).Contains(e.X, e.Y))
-                {
-                    m1.PerformClick();
-                }
-                else if (new Rectangle(st.Left, st.Top, ht.Width, hb.Bottom - ht.Top).Contains(e.X, e.Y))
-                {
-                    s1.PerformClick();
-                }
-            }
-            else if (e.Delta > 0)
             {
                 if (new Rectangle(ht.Left, ht.Top, ht.Width, hb.Bottom - ht.Top).Contains(e.X, e.Y))
                 {
@@ -446,6 +433,21 @@ namespace Sunny.UI
                 else if (new Rectangle(st.Left, st.Top, ht.Width, hb.Bottom - ht.Top).Contains(e.X, e.Y))
                 {
                     s2.PerformClick();
+                }
+            }
+            else if (e.Delta > 0)
+            {
+                if (new Rectangle(ht.Left, ht.Top, ht.Width, hb.Bottom - ht.Top).Contains(e.X, e.Y))
+                {
+                    h1.PerformClick();
+                }
+                else if (new Rectangle(mt.Left, mt.Top, ht.Width, hb.Bottom - ht.Top).Contains(e.X, e.Y))
+                {
+                    m1.PerformClick();
+                }
+                else if (new Rectangle(st.Left, st.Top, ht.Width, hb.Bottom - ht.Top).Contains(e.X, e.Y))
+                {
+                    s1.PerformClick();
                 }
             }
         }

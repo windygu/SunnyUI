@@ -57,28 +57,27 @@ namespace Sunny.UI
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            CalcData(PieOption);
+            CalcData();
         }
 
         protected override void DrawOption(Graphics g)
         {
-            if (PieOption == null) return;
-            DrawTitle(g, PieOption.Title);
-            DrawSeries(g, PieOption.Series);
-            DrawLegend(g, PieOption.Legend);
+            if (Option == null) return;
+            DrawTitle(g, Option.Title);
+            DrawSeries(g, Option.Series);
+            DrawLegend(g, Option.Legend);
         }
 
         private bool AllIsZero;
 
-        protected override void CalcData(UIOption option)
+        protected override void CalcData()
         {
             Angles.Clear();
-            UIPieOption o = (UIPieOption)option;
-            if (o == null || o.Series == null || o.Series.Count == 0) return;
+            if (Option == null || Option.Series == null || Option.Series.Count == 0) return;
 
-            for (int pieIndex = 0; pieIndex < o.Series.Count; pieIndex++)
+            for (int pieIndex = 0; pieIndex < Option.Series.Count; pieIndex++)
             {
-                var pie = o.Series[pieIndex];
+                var pie = Option.Series[pieIndex];
                 Angles.TryAdd(pieIndex, new ConcurrentDictionary<int, Angle>());
 
                 double all = 0;
@@ -95,14 +94,14 @@ namespace Sunny.UI
                     float angle = (float)(pie.Data[i].Value * 360.0f / all);
                     float percent = (float)(pie.Data[i].Value * 100.0f / all);
                     string text = "";
-                    if (o.ToolTip != null)
+                    if (Option.ToolTip != null)
                     {
                         try
                         {
-                            UITemplate template = new UITemplate(o.ToolTip.Formatter);
+                            UITemplate template = new UITemplate(Option.ToolTip.Formatter);
                             template.Set("a", pie.Name);
                             template.Set("b", pie.Data[i].Name);
-                            template.Set("c", pie.Data[i].Value.ToString(o.ToolTip.ValueFormat));
+                            template.Set("c", pie.Data[i].Value.ToString(Option.ToolTip.ValueFormat));
                             template.Set("d", percent.ToString("F2"));
                             text = template.Render();
                         }
@@ -113,7 +112,7 @@ namespace Sunny.UI
                         }
                     }
 
-                    Angles[pieIndex].AddOrUpdate(i, new Angle(start, angle, text));
+                    Angles[pieIndex].TryAddOrUpdate(i, new Angle(start, angle, text));
                     start += angle;
                 }
             }
@@ -179,22 +178,26 @@ namespace Sunny.UI
 
         private readonly ConcurrentDictionary<int, ConcurrentDictionary<int, Angle>> Angles = new ConcurrentDictionary<int, ConcurrentDictionary<int, Angle>>();
 
-        [Browsable(false)]
-        private UIPieOption PieOption
+        [Browsable(false), DefaultValue(null)]
+        public UIPieOption Option
         {
             get
             {
-                UIOption option = Option ?? EmptyOption;
-                UIPieOption o = (UIPieOption)option;
-                return o;
+                UIOption option = BaseOption ?? EmptyOption;
+                return (UIPieOption)option;
             }
+
+            // set
+            // {
+            //     SetOption(value);
+            // }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
-            if (PieOption.SeriesCount == 0)
+            if (Option.SeriesCount == 0)
             {
                 SetPieAndAzIndex(-1, -1);
                 return;
@@ -202,16 +205,16 @@ namespace Sunny.UI
 
             if (AllIsZero) return;
 
-            for (int pieIndex = 0; pieIndex < PieOption.SeriesCount; pieIndex++)
+            for (int pieIndex = 0; pieIndex < Option.SeriesCount; pieIndex++)
             {
-                RectangleF rect = GetSeriesRect(PieOption.Series[pieIndex]);
+                RectangleF rect = GetSeriesRect(Option.Series[pieIndex]);
                 if (!e.Location.InRect(rect)) continue;
 
                 PointF pf = new PointF(rect.Left + rect.Width / 2.0f, rect.Top + rect.Height / 2.0f);
                 if (MathEx.CalcDistance(e.Location, pf) * 2 > rect.Width) continue;
 
                 double az = MathEx.CalcAngle(e.Location, pf);
-                for (int azIndex = 0; azIndex < PieOption.Series[pieIndex].Data.Count; azIndex++)
+                for (int azIndex = 0; azIndex < Option.Series[pieIndex].Data.Count; azIndex++)
                 {
                     Angle angle = Angles[pieIndex][azIndex];
                     if (az >= angle.Start && az <= angle.Start + angle.Sweep)
@@ -244,7 +247,11 @@ namespace Sunny.UI
                             tip.Top = e.Location.Y + 20;
                         }
 
-                        if (!tip.Visible) tip.Visible = angle.Text.IsValid();
+                        if (Option.ToolTip.Visible)
+                        {
+                            if (!tip.Visible) tip.Visible = angle.Text.IsValid();
+                        }
+
                         return;
                     }
                 }
@@ -288,10 +295,6 @@ namespace Sunny.UI
 
         private float RadiusSize(UIPieSeries series)
         {
-            int left = series.Center.Left;
-            int top = series.Center.Top;
-            left = Width * left / 100;
-            top = Height * top / 100;
             return Math.Min(Width, Height) * series.Radius / 200.0f;
         }
 

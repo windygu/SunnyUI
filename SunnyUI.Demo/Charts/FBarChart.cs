@@ -26,20 +26,20 @@ namespace Sunny.UI.Demo.Charts
 
             var series = new UIBarSeries();
             series.Name = "Bar1";
-            series.AddData(11);
-            series.AddData(15);
-            series.AddData(12);
-            series.AddData(14);
-            series.AddData(13);
+            series.AddData(1.1);
+            series.AddData(1.1);
+            series.AddData(1.1);
+            series.AddData(1.1);
+            series.AddData(1.1);
             option.Series.Add(series);
 
             series = new UIBarSeries();
             series.Name = "Bar2";
-            series.AddData(-22);
-            series.AddData(-28);
-            series.AddData(-25);
-            series.AddData(-23);
-            series.AddData(-24);
+            series.AddData(1.1);
+            series.AddData(1.1);
+            series.AddData(1.1);
+            series.AddData(1.1);
+            series.AddData(1.1);
             option.Series.Add(series);
 
             option.XAxis.Data.Add("Mon");
@@ -48,7 +48,7 @@ namespace Sunny.UI.Demo.Charts
             option.XAxis.Data.Add("Thu");
             option.XAxis.Data.Add("Fri");
 
-            option.ToolTip = new UIBarToolTip();
+            option.ToolTip.Visible = true;
             option.YAxis.Scale = true;
 
             option.XAxis.Name = "日期";

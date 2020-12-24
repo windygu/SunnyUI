@@ -18,6 +18,7 @@
  *
  * 2020-05-05: V2.2.5 增加文件
  * 2020-07-07: V2.2.6 全部重写，增加圆角，CheckBoxes等
+ * 2020-08-12: V2.2.7 更新可设置背景色
 ******************************************************************************/
 
 using System;
@@ -65,8 +66,9 @@ namespace Sunny.UI
             if (view != null)
             {
                 view.SelectedForeColor = UIColor.White;
+                view.FillColor = view.BackColor = fillColor = UIColor.White;
+
                 rectColor = uiColor.RectColor;
-                view.BackColor = fillColor = UIColor.White;
                 view.SelectedColor = uiColor.TreeViewSelectedColor;
                 view.ForeColor = foreColor = UIFontColor.Primary;
                 view.HoverColor = uiColor.TreeViewHoverColor;
@@ -75,6 +77,7 @@ namespace Sunny.UI
             if (Bar != null)
             {
                 Bar.FillColor = UIColor.White;
+
                 Bar.ForeColor = uiColor.PrimaryColor;
                 Bar.HoverColor = uiColor.ButtonFillHoverColor;
                 Bar.PressColor = uiColor.ButtonFillPressColor;
@@ -90,6 +93,11 @@ namespace Sunny.UI
             {
                 view.FillColor = color;
                 view.BackColor = color;
+            }
+
+            if (Bar != null)
+            {
+                Bar.FillColor = color;
             }
         }
 
@@ -733,7 +741,7 @@ namespace Sunny.UI
                                 {
                                     lineX -= Indent;
 
-                                    if (pNode.Level == 0 && pNode.NextNode != null)
+                                    if (pNode.NextNode != null)
                                         e.Graphics.DrawLine(pn, lineX, lineY, lineX, e.Node.Bounds.Top);
 
                                     if (pNode.NextNode != null)

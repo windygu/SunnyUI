@@ -18,10 +18,13 @@
  *
  * 2020-01-01: V2.2.0 增加文件说明
  * 2020-04-25: V2.2.4 更新主题配置类
+ * 2020-08-14: V2.2.7 增加字体调整
 ******************************************************************************/
 
 using System;
 using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Sunny.UI
 {
@@ -35,6 +38,30 @@ namespace Sunny.UI
         {
             InitializeComponent();
             ShowText = false;
+            edit.Type = UITextBox.UIEditType.Integer;
+            edit.Parent = pnlValue;
+            edit.Visible = false;
+            edit.BorderStyle = BorderStyle.None;
+            edit.TextChanged += Edit_TextChanged;
+            edit.Leave += Edit_Leave;
+            //edit.MouseLeave += Edit_Leave;
+        }
+
+        private void Edit_Leave(object sender, EventArgs e)
+        {
+            if (edit.Visible)
+            {
+                edit.Visible = false;
+                pnlValue.FillColor = pnlColor;
+            }
+        }
+
+        private void Edit_TextChanged(object sender, EventArgs e)
+        {
+            if (edit != null && edit.Visible)
+            {
+                Value = edit.Text.ToInt();
+            }
         }
 
         public event OnValueChanged ValueChanged;
@@ -59,6 +86,7 @@ namespace Sunny.UI
         {
             base.OnFontChanged(e);
             if (pnlValue != null) pnlValue.Font = Font;
+            if (edit != null) edit.Font = Font;
         }
 
         private int step = 1;
@@ -68,17 +96,27 @@ namespace Sunny.UI
         public int Step
         {
             get => step;
-            set { step = Math.Max(1, value); }
+            set => step = Math.Max(1, value);
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
             Value += Step;
+            if (edit.Visible)
+            {
+                edit.Visible = false;
+                pnlValue.FillColor = pnlColor;
+            }
         }
 
         private void btnDec_Click(object sender, EventArgs e)
         {
             Value -= Step;
+            if (edit.Visible)
+            {
+                edit.Visible = false;
+                pnlValue.FillColor = pnlColor;
+            }
         }
 
         private int _maximum = int.MaxValue;
@@ -96,6 +134,7 @@ namespace Sunny.UI
                     _minimum = _maximum;
 
                 Value = CheckMaxMin(Value);
+                edit.MaxValue = _maximum;
                 Invalidate();
             }
         }
@@ -112,6 +151,7 @@ namespace Sunny.UI
                     _maximum = _minimum;
 
                 Value = CheckMaxMin(Value);
+                edit.MinValue = _maximum;
                 Invalidate();
             }
         }
@@ -147,6 +187,7 @@ namespace Sunny.UI
                 {
                     hasMaximum = value;
                     Value = CheckMaxMin(Value);
+                    edit.HasMaxValue = value;
                     Invalidate();
                 }
             }
@@ -163,9 +204,25 @@ namespace Sunny.UI
                 {
                     hasMinimum = value;
                     Value = CheckMaxMin(Value);
+                    edit.HasMinValue = value;
                     Invalidate();
                 }
             }
+        }
+
+        private readonly UIEdit edit = new UIEdit();
+        private Color pnlColor;
+        private void pnlValue_DoubleClick(object sender, EventArgs e)
+        {
+            edit.Left = 1;
+            edit.Top = (pnlValue.Height - edit.Height) / 2;
+            edit.Width = pnlValue.Width - 2;
+            pnlColor = pnlValue.FillColor;
+            pnlValue.FillColor = Color.White;
+            edit.TextAlign = HorizontalAlignment.Center;
+            edit.Text = pnlValue.Text;
+            edit.Visible = true;
+            edit.BringToFront();
         }
     }
 }
